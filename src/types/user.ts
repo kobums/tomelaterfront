@@ -4,6 +4,7 @@
 export interface User {
   id: number;
   email: string;
+  passwd: string;
   nickname: string;
   socialtype: string;
   socialid: string;
@@ -21,6 +22,7 @@ export type UpdateUserRequest = Partial<Omit<User, 'id'>>;
 export interface UserSearchParams {
   id?: number;
   email?: string;
+  passwd?: string;
   nickname?: string;
   socialtype?: string;
   socialid?: string;

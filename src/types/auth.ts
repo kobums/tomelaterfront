@@ -5,7 +5,7 @@ import type { User } from './user';
 
 // Login request type
 export interface LoginRequest {
-  loginid: string;
+  email: string;
   passwd: string;
 }
 
