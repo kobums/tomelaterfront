@@ -54,7 +54,7 @@ function App() {
         </nav>
       )}
 
-      <main className="py-6">
+      <main>
         <Routes>
           <Route
             path="/login"
