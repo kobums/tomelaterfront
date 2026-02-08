@@ -1,22 +1,19 @@
-import axios from 'axios';
+import axios, { type AxiosRequestConfig } from 'axios';
+import { useAuthStore } from '../store/useAuthStore';
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL || 'http://localhost:9410/api';
+// Create a configured instance if needed, or simply intercept the global axios
+// Here we add an interceptor to inject the token from the store
 
-// Create axios instance
-const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  timeout: 10000,
+// Configure base URL if not proxied via Vite, but we are using proxy.
+// We can use a custom instance to keep it clean.
+const api = axios.create({
+  baseURL: '/api',
 });
 
-// Request interceptor - add JWT token
-apiClient.interceptors.request.use(
+api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('gym_token');
-    if (token && config.headers) {
+    const token = useAuthStore.getState().token;
+    if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -26,44 +23,36 @@ apiClient.interceptors.request.use(
   },
 );
 
-// Response interceptor - handle errors
-apiClient.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error) => {
-    if (error.response?.status === 401) {
-      // Token expired or invalid
-      localStorage.removeItem('gym_token');
-      localStorage.removeItem('gym_user');
-      window.location.href = '/login';
-    }
-    return Promise.reject(error);
-  },
-);
-
-export default apiClient;
-
-// Helper function for GET requests
-export const get = <T>(url: string, config?: any) => {
-  return apiClient.get<T>(url, config);
+export const get = <T>(url: string, config?: AxiosRequestConfig) => {
+  return api.get<T>(url, config);
 };
 
-// Helper function for POST requests
-export const post = <T>(url: string, data?: unknown, config?: any) => {
-  return apiClient.post<T>(url, data, config);
+export const post = <T>(
+  url: string,
+  data?: unknown,
+  config?: AxiosRequestConfig,
+) => {
+  return api.post<T>(url, data, config);
 };
 
-// Helper function for PUT requests
-export const put = <T>(url: string, data?: unknown, config?: any) => {
-  return apiClient.put<T>(url, data, config);
+export const put = <T>(
+  url: string,
+  data?: unknown,
+  config?: AxiosRequestConfig,
+) => {
+  return api.put<T>(url, data, config);
 };
 
-export const patch = <T>(url: string, data?: unknown, config?: any) => {
-  return apiClient.patch<T>(url, data, config);
+export const patch = <T>(
+  url: string,
+  data?: unknown,
+  config?: AxiosRequestConfig,
+) => {
+  return api.patch<T>(url, data, config);
 };
 
-// Helper function for DELETE requests
-export const del = <T>(url: string, config?: any) => {
-  return apiClient.delete<T>(url, config);
+export const del = <T>(url: string, config?: AxiosRequestConfig) => {
+  return api.delete<T>(url, config);
 };
+
+export default api;
