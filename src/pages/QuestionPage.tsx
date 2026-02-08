@@ -1,161 +1,111 @@
-import React, { useEffect, useState } from 'react';
-import type { Question } from '../types/question';
-import { QuestionService } from '../services/question.service';
-import { AnswerService } from '../services/answer.service';
-import { useAuthStore } from '../store/useAuthStore';
-import { Button } from '../components/ui/Button';
+import React from 'react';
+import styled from '@emotion/styled';
+import { keyframes } from '@emotion/react';
+
+import { useQuestion } from '../features/question/hooks/useQuestion';
+import { QuestionCard } from '../features/question/components/QuestionCard';
+import { AnswerSection } from '../features/question/components/AnswerSection';
+
+// Keyframes
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
+
+// Styled Components
+const PageContainer = styled.div`
+  min-height: calc(100vh - 4rem);
+  background-color: #f9fafb;
+  padding: 3rem 1rem;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+`;
+
+const ContentWrapper = styled.div`
+  max-width: 42rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+`;
+
+const Header = styled.div`
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  animation: ${fadeIn} 0.5s ease-out;
+`;
+
+const Title = styled.h1`
+  font-size: 2.25rem;
+  font-weight: 700;
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  color: #111827;
+`;
+
+const DateText = styled.p`
+  color: #6b7280;
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  font-style: italic;
+  font-size: 1.125rem;
+`;
+
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+`;
 
 const QuestionPage: React.FC = () => {
-  const { user } = useAuthStore();
-  const [question, setQuestion] = useState<Question | null>(null);
-  const [answer, setAnswer] = useState<string>('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isPublic, setIsPublic] = useState(false);
-  const [existingAnswer, setExistingAnswer] = useState<boolean>(false);
+  const {
+    question,
+    answer,
+    setAnswer,
+    isSubmitting,
+    isPublic,
+    setIsPublic,
+    existingAnswer,
+    isLoading,
+    handleSubmit,
+  } = useQuestion();
 
-  useEffect(() => {
-    fetchDailyQuestion();
-  }, []);
-
-  const fetchDailyQuestion = async () => {
-    try {
-      const q = await QuestionService.getDailyQuestion();
-      setQuestion(q);
-      if (user && q) {
-        checkExistingAnswer(user.id, q.id);
-      }
-    } catch (error) {
-      console.error('Failed to fetch daily question', error);
-    }
-  };
-
-  const checkExistingAnswer = async (uid: number, qid: number) => {
-    const ans = await AnswerService.getAnswerForQuestion(uid, qid);
-    if (ans) {
-      setExistingAnswer(true);
-      setAnswer(ans.content);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user || !question) return;
-
-    setIsSubmitting(true);
-    try {
-      await AnswerService.createAnswer({
-        uid: user.id,
-        qid: question.id,
-        content: answer,
-        ispublic: isPublic,
-      });
-      setExistingAnswer(true);
-      alert('Answer submitted successfully!');
-    } catch (error) {
-      console.error('Failed to submit answer', error);
-      alert('Failed to submit answer.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  if (!question) {
+  if (isLoading || !question) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <LoadingContainer>
         Loading Today's Question...
-      </div>
+      </LoadingContainer>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 font-sans">
-      <div className="max-w-2xl mx-auto space-y-8">
+    <PageContainer>
+      <ContentWrapper>
         {/* Header */}
-        <div className="text-center space-y-2 animate-fade-in">
-          <h1 className="text-4xl font-bold font-serif text-gray-900">
+        <Header>
+          <Title>
             Today's Question
-          </h1>
-          <p className="text-gray-500 font-serif italic text-lg">
+          </Title>
+          <DateText>
             {question.month} / {question.day}
-          </p>
-        </div>
+          </DateText>
+        </Header>
 
         {/* Question Card (Letter Style) */}
-        <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden transform transition-all hover:shadow-xl duration-300 animate-slide-up">
-          <div className="h-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
-          <div className="p-10 space-y-6">
-            <p className="text-2xl text-gray-800 font-serif leading-relaxed text-center">
-              "{question.content}"
-            </p>
-          </div>
-        </div>
+        <QuestionCard content={question.content} />
 
         {/* Answer Section */}
-        {existingAnswer ? (
-          <div className="bg-emerald-50 rounded-xl p-8 border border-emerald-100 shadow-sm text-center animate-fade-in">
-            <div className="mx-auto flex items-center justify-center w-12 h-12 rounded-full bg-emerald-100 mb-4">
-              <span className="text-2xl">🌿</span>
-            </div>
-            <h3 className="text-xl font-bold text-emerald-900 mb-3 font-serif">
-              Answered
-            </h3>
-            <p className="text-emerald-800 italic font-serif leading-relaxed">
-              "{answer}"
-            </p>
-            <div className="mt-4 text-xs text-emerald-600 uppercase tracking-wider font-semibold">
-              See you next year
-            </div>
-          </div>
-        ) : (
-          <form
-            onSubmit={handleSubmit}
-            className="bg-white rounded-xl shadow-lg border border-gray-100 p-8 space-y-6 animate-slide-up"
-            style={{ animationDelay: '100ms' }}
-          >
-            <div className="space-y-4">
-              <label
-                htmlFor="answer"
-                className="block text-sm font-semibold text-gray-700 uppercase tracking-wider"
-              >
-                Your Answer
-              </label>
-              <textarea
-                id="answer"
-                className="w-full px-5 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 min-h-[180px] text-lg leading-relaxed resize-y transition-shadow bg-gray-50 focus:bg-white placeholder-gray-400 font-serif"
-                placeholder="Write your thoughts here..."
-                value={answer}
-                onChange={(e) => setAnswer(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="flex items-center space-x-3 pt-2">
-              <input
-                type="checkbox"
-                id="isPublic"
-                checked={isPublic}
-                onChange={(e) => setIsPublic(e.target.checked)}
-                className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
-              />
-              <label
-                htmlFor="isPublic"
-                className="text-sm text-gray-600 cursor-pointer select-none"
-              >
-                Make this answer public (share with others)
-              </label>
-            </div>
-
-            <Button
-              type="submit"
-              isLoading={isSubmitting}
-              className="w-full py-4 text-lg font-semibold rounded-xl shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
-            >
-              Submit to Future Me
-            </Button>
-          </form>
-        )}
-      </div>
-    </div>
+        <AnswerSection
+          existingAnswer={existingAnswer}
+          answer={answer}
+          setAnswer={setAnswer}
+          isPublic={isPublic}
+          setIsPublic={setIsPublic}
+          isSubmitting={isSubmitting}
+          handleSubmit={handleSubmit}
+        />
+      </ContentWrapper>
+    </PageContainer>
   );
 };
 
