@@ -1,4 +1,6 @@
 import React from 'react';
+import styled from '@emotion/styled';
+import { css } from '@emotion/react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
@@ -6,37 +8,123 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   isLoading?: boolean;
 }
 
+const StyledButton = styled.button<ButtonProps>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  cursor: pointer;
+
+  &:focus {
+    --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+    --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+    box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  ${({ variant }) => {
+    switch (variant) {
+      case 'primary':
+        return css`
+          background-color: #4f46e5;
+          color: white;
+          border: 1px solid transparent;
+          &:hover:not(:disabled) {
+            background-color: #4338ca;
+          }
+          &:focus {
+            --tw-ring-color: #6366f1;
+          }
+        `;
+      case 'secondary':
+        return css`
+          background-color: #f3f4f6;
+          color: #111827;
+          border: 1px solid transparent;
+          &:hover:not(:disabled) {
+            background-color: #e5e7eb;
+          }
+          &:focus {
+            --tw-ring-color: #6b7280;
+          }
+        `;
+      case 'outline':
+        return css`
+          background-color: transparent;
+          color: inherit;
+          border: 1px solid #d1d5db;
+          &:hover:not(:disabled) {
+            background-color: #f9fafb;
+          }
+          &:focus {
+            --tw-ring-color: #6b7280;
+          }
+        `;
+      case 'ghost':
+        return css`
+          background-color: transparent;
+          color: #374151;
+          border: 1px solid transparent;
+          &:hover:not(:disabled) {
+            background-color: #f3f4f6;
+          }
+          &:focus {
+            --tw-ring-color: #6b7280;
+          }
+        `;
+      default:
+        return '';
+    }
+  }}
+
+  ${({ size }) => {
+    switch (size) {
+      case 'sm':
+        return css`
+          padding: 0.375rem 0.75rem;
+          font-size: 0.875rem;
+          line-height: 1.25rem;
+        `;
+      case 'lg':
+        return css`
+          padding: 0.75rem 1.5rem;
+          font-size: 1.125rem;
+          line-height: 1.75rem;
+        `;
+      default: // md
+        return css`
+          padding: 0.5rem 1rem;
+          font-size: 1rem;
+          line-height: 1.5rem;
+        `;
+    }
+  }}
+
+  ${({ className }) => className && className}
+`;
+
 export const Button: React.FC<ButtonProps> = ({
   children,
-  className = '',
   variant = 'primary',
   size = 'md',
   isLoading = false,
   disabled,
   ...props
 }) => {
-  const baseStyles =
-    'inline-flex items-center justify-center rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
-
-  const variants = {
-    primary:
-      'bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500',
-    secondary:
-      'bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-gray-500',
-    outline:
-      'border border-gray-300 bg-transparent hover:bg-gray-50 focus:ring-gray-500',
-    ghost: 'bg-transparent hover:bg-gray-100 text-gray-700 focus:ring-gray-500',
-  };
-
-  const sizes = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-4 py-2 text-base',
-    lg: 'px-6 py-3 text-lg',
-  };
-
   return (
-    <button
-      className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
+    <StyledButton
+      variant={variant}
+      size={size}
       disabled={disabled || isLoading}
       {...props}
     >
@@ -63,6 +151,6 @@ export const Button: React.FC<ButtonProps> = ({
         </svg>
       ) : null}
       {children}
-    </button>
+    </StyledButton>
   );
 };
