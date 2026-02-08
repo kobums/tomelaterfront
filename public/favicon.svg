@@ -1,0 +1,27 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradient" x1="20" y1="20" x2="180" y2="180" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4F46E5" /> <!-- Indigo-600 -->
+      <stop offset="100%" stop-color="#9333EA" /> <!-- Purple-600 -->
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+  
+  <g filter="url(#shadow)">
+    <!-- Envelope Body -->
+    <rect x="25" y="45" width="150" height="110" rx="20" fill="url(#gradient)" />
+    
+    <!-- Envelope Flap (Triangle) -->
+    <path d="M25 45 L100 115 L175 45" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.9"/>
+    
+    <!-- Bottom Folds -->
+    <path d="M25 155 L85 95" stroke="white" stroke-width="6" stroke-linecap="round" opacity="0.4"/>
+    <path d="M175 155 L115 95" stroke="white" stroke-width="6" stroke-linecap="round" opacity="0.4"/>
+    
+    <!-- Clock Hand (Symbolizing 'Later') -->
+    <circle cx="100" cy="100" r="25" stroke="white" stroke-width="3" fill="none" opacity="0.8" />
+    <path d="M100 100 L100 85 M100 100 L112 100" stroke="white" stroke-width="3" stroke-linecap="round" />
+  </g>
+</svg>
