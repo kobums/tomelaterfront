@@ -111,6 +111,12 @@ const LetterText = styled.p`
   }
 `;
 
+const QuestionText = styled.div`
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+`;
+
 const LetterFooter = styled.div`
   padding-top: 3rem;
   display: flex;
@@ -185,6 +191,9 @@ export const LetterModal: React.FC<LetterModalProps> = ({ letter, onClose }) => 
                 weekday: 'long',
               })}
             </LetterDate>
+            {letter.extra?.question?.content && (
+                <QuestionText>{letter.extra.question.content}</QuestionText>
+              )}
           </LetterHeader>
 
           <div className="prose prose-lg max-w-none">

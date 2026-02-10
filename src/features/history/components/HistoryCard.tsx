@@ -56,7 +56,7 @@ const PreviewText = styled.div`
   font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   line-height: 1.625;
   display: -webkit-box;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
 `;
@@ -82,6 +82,11 @@ const ReadButton = styled.button`
   }
 `;
 
+const QuestionText = styled.div`
+  font-size: 0.875rem;
+  font-weight: 600;
+`;
+
 interface HistoryCardProps {
   answer: Answer;
   onSelect: (answer: Answer) => void;
@@ -96,6 +101,10 @@ export const HistoryCard: React.FC<HistoryCardProps> = ({ answer, onSelect }) =>
           <StatusBadge>{answer.ispublic === 2 ? 'Public' : 'Private'}</StatusBadge>
           <DateText>{new Date(answer.createdat).toLocaleDateString()}</DateText>
         </CardHeader>
+
+        {answer.extra?.question?.content && (
+          <QuestionText>{answer.extra.question.content}</QuestionText>
+        )}
 
         <PreviewText>"{answer.content}"</PreviewText>
 
