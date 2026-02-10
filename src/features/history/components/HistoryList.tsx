@@ -3,6 +3,7 @@ import styled from '@emotion/styled';
 import { Link } from 'react-router-dom';
 import type { Answer } from '../../../types/answer';
 import { HistoryCard } from './HistoryCard';
+import { useIntersectionObserver } from '../../../hooks/useIntersectionObserver';
 
 const Grid = styled.div`
   display: grid;
@@ -37,13 +38,33 @@ const WriteLink = styled(Link)`
   }
 `;
 
+const Sentinel = styled.div`
+  height: 20px;
+  width: 100%;
+`;
+
 interface HistoryListProps {
   answers: Answer[];
   onSelect: (answer: Answer) => void;
+  // Infinite Scroll Props
+  hasMore: boolean;
+  onLoadMore: () => void;
+  isLoading: boolean;
 }
 
-export const HistoryList: React.FC<HistoryListProps> = ({ answers, onSelect }) => {
-  if (answers.length === 0) {
+export const HistoryList: React.FC<HistoryListProps> = ({ 
+  answers, 
+  onSelect,
+  hasMore,
+  onLoadMore,
+  isLoading
+}) => {
+  const ref = useIntersectionObserver({
+    onIntersect: onLoadMore,
+    enabled: hasMore && !isLoading,
+  });
+
+  if (answers.length === 0 && !isLoading) {
     return (
       <EmptyState>
         <EmptyText>You haven't written any letters yet.</EmptyText>
@@ -53,10 +74,17 @@ export const HistoryList: React.FC<HistoryListProps> = ({ answers, onSelect }) =
   }
 
   return (
-    <Grid>
-      {answers.map((answer) => (
-        <HistoryCard key={answer.id} answer={answer} onSelect={onSelect} />
-      ))}
-    </Grid>
+    <>
+      <Grid>
+        {answers.map((answer) => (
+          <HistoryCard key={answer.id} answer={answer} onSelect={onSelect} />
+        ))}
+      </Grid>
+
+      {/* Infinite Scroll Sentinel */}
+      <Sentinel ref={ref}>
+        {isLoading && hasMore && <p style={{textAlign: 'center', color: '#6b7280'}}>Loading more...</p>}
+      </Sentinel>
+    </>
   );
 };

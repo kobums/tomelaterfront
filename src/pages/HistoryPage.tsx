@@ -70,9 +70,16 @@ const Spinner = styled.div`
 `;
 
 const HistoryPage: React.FC = () => {
-  const { answers, isLoading, selectedLetter, setSelectedLetter } = useHistory();
+  const { 
+    answers, 
+    isLoading, 
+    selectedLetter, 
+    setSelectedLetter,
+    hasMore,
+    loadMore
+  } = useHistory();
 
-  if (isLoading) {
+  if (isLoading && answers.length === 0) {
     return (
       <LoadingContainer>
         <Spinner />
@@ -92,7 +99,13 @@ const HistoryPage: React.FC = () => {
           </Subtitle>
         </Header>
 
-        <HistoryList answers={answers} onSelect={setSelectedLetter} />
+        <HistoryList 
+          answers={answers} 
+          onSelect={setSelectedLetter}
+          hasMore={hasMore}
+          onLoadMore={loadMore}
+          isLoading={isLoading}
+        />
 
         {/* Letter Modal */}
         {selectedLetter && (

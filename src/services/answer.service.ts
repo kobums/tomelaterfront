@@ -1,5 +1,5 @@
 import { get, post } from './api';
-import type { Answer } from '../types/answer';
+import type { Answer, ApiResponse } from '../types/answer';
 
 const API_URL = '/answer';
 
@@ -21,10 +21,10 @@ export const AnswerService = {
   },
 
 
-  getMyAnswers: async (uid: number): Promise<Answer[]> => {
-    // Backend: @GetMapping on /api/answer supports 'uid' parameter
-    const response = await get<{ content: Answer[] }>(`${API_URL}?uid=${uid}`);
-    return response.data.content;
+  getMyAnswers: async (uid: number, page = 0, size = 10): Promise<ApiResponse<Answer>> => {
+    // Backend: @GetMapping on /api/answer supports 'uid', 'page', 'size' parameters
+    const response = await get<ApiResponse<Answer>>(`${API_URL}?uid=${uid}&page=${page}&size=${size}`);
+    return response.data;
   },
 
   getAnswerForQuestion: async (
@@ -36,7 +36,14 @@ export const AnswerService = {
       const response = await get<{ content: Answer[] }>(
         `${API_URL}?uid=${uid}&qid=${qid}`,
       );
-      return response.data.content.length > 0 ? response.data.content[0] : null;
+      if (response.data.content.length === 0) return null;
+
+      // Sort by createdat desc to get the latest answer
+      const sortedAnswers = response.data.content.sort(
+        (a, b) => new Date(b.createdat).getTime() - new Date(a.createdat).getTime(),
+      );
+
+      return sortedAnswers[0];
     } catch (e) {
       console.error('Failed to fetch answer for question', e);
       return null;
