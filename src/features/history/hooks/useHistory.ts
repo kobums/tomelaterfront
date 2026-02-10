@@ -43,7 +43,8 @@ export const useHistory = () => {
     } else {
       setAnswers([]);
     }
-  }, [user, fetchAnswers]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   const loadMore = () => {
     if (!isLoading && hasMore) {
