@@ -15,7 +15,18 @@ export default defineConfig({
     port: 9006,
     proxy: {
       '/api': {
-        target: 'http://localhost:8006',
+        target: 'https://tomelaterspring.gowoobro.com',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
+  preview: {
+    port: 9006,
+    allowedHosts: ['tomelater.gowoobro.com'],
+    proxy: {
+      '/api': {
+        target: 'https://tomelaterspring.gowoobro.com',
         changeOrigin: true,
         secure: false,
       },
