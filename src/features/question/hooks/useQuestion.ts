@@ -32,9 +32,20 @@ export const useQuestion = () => {
     try {
       const ans = await AnswerService.getAnswerForQuestion(uid, qid);
       if (ans) {
-        setExistingAnswer(true);
-        setAnswer(ans.content);
-        setIsPublic(ans.ispublic === 2);
+        // Check if the answer was created this year
+        const answerYear = new Date(ans.createdat).getFullYear();
+        const currentYear = new Date().getFullYear();
+
+        if (answerYear === currentYear) {
+          setExistingAnswer(true);
+          setAnswer(ans.content);
+          setIsPublic(ans.ispublic === 2);
+        } else {
+          // If answer is from a previous year, allow user to write a new one
+          setExistingAnswer(false);
+          setAnswer('');
+          setIsPublic(false);
+        }
       }
     } catch (error) {
       console.error('Failed to check existing answer', error);
