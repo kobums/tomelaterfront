@@ -7,6 +7,8 @@ import RegisterPage from './pages/RegisterPage';
 import QuestionPage from './pages/QuestionPage';
 import HistoryPage from './pages/HistoryPage';
 import FindAccountPage from './pages/FindAccountPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import { Footer } from './components/common/Footer';
 
 function App() {
   const { isAuthenticated, logout } = useAuthStore();
@@ -21,7 +23,7 @@ function App() {
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
+    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans flex flex-col">
       {/* Navigation Bar */}
       {isAuthenticated && (
         <nav className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100">
@@ -129,7 +131,7 @@ function App() {
         </nav>
       )}
 
-      <main>
+      <main className="flex-grow">
         <Routes>
           <Route
             path="/login"
@@ -160,6 +162,9 @@ function App() {
               isAuthenticated ? <HistoryPage /> : <Navigate to="/login" replace />
             }
           />
+          
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
+          
           <Route
             path="/"
             element={<Navigate to={isAuthenticated ? "/question" : "/login"} replace />}
@@ -168,6 +173,8 @@ function App() {
           <Route path="/find-account" element={<FindAccountPage />} />
         </Routes>
       </main>
+
+      <Footer />
     </div>
   );
 }
