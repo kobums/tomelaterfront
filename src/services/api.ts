@@ -23,6 +23,23 @@ api.interceptors.request.use(
   },
 );
 
+// 토큰을 실어 보낸 요청이 401 이면 토큰이 만료/무효다(서버는 리프레시 토큰이 없다).
+// 저장된 로그인 정보를 지우면 App.tsx 의 라우트 가드가 /login 으로 보낸다.
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (
+      axios.isAxiosError(error) &&
+      error.response?.status === 401 &&
+      error.config?.headers?.Authorization &&
+      useAuthStore.getState().token
+    ) {
+      useAuthStore.getState().logout();
+    }
+    return Promise.reject(error);
+  },
+);
+
 export const get = <T>(url: string, config?: AxiosRequestConfig) => {
   return api.get<T>(url, config);
 };
