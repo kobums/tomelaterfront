@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { useAuthStore } from './store/useAuthStore';
+import { authService } from './services/auth.service';
+import { AlertModal } from './components/ui/AlertModal';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import QuestionPage from './pages/QuestionPage';
@@ -11,8 +13,11 @@ import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import { Footer } from './components/common/Footer';
 
 function App() {
-  const { isAuthenticated, logout } = useAuthStore();
+  const { isAuthenticated, logout, user } = useAuthStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
+  const [isWithdrawing, setIsWithdrawing] = useState(false);
+  const [withdrawError, setWithdrawError] = useState('');
   const location = useLocation();
 
   // Close menu when route changes
@@ -21,6 +26,23 @@ function App() {
   }, [location]);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  // 회원 탈퇴: 계정과 모든 답변을 삭제한 뒤 로그인 정보를 지운다.
+  // (logout 후에는 라우트 가드가 /login 으로 보낸다.)
+  const handleWithdraw = async () => {
+    if (!user) return;
+    setIsWithdrawing(true);
+    try {
+      await authService.withdraw(user.id);
+      setIsWithdrawOpen(false);
+      logout();
+    } catch (e) {
+      setIsWithdrawOpen(false);
+      setWithdrawError(e instanceof Error ? e.message : '회원 탈퇴에 실패했습니다.');
+    } finally {
+      setIsWithdrawing(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 font-sans flex flex-col">
@@ -78,6 +100,12 @@ function App() {
               {/* Desktop Sign Out (Right) */}
               <div className="hidden md:flex items-center">
                 <button
+                  onClick={() => setIsWithdrawOpen(true)}
+                  className="px-3 py-2 rounded-full text-xs font-medium text-gray-400 hover:text-red-500 transition-colors"
+                >
+                  Delete Account
+                </button>
+                <button
                   onClick={logout}
                   className="px-4 py-2 rounded-full text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100/50 border border-transparent hover:border-gray-200 transition-all"
                 >
@@ -124,6 +152,15 @@ function App() {
                   className="block w-full text-left px-3 py-3 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                 >
                   Sign Out
+                </button>
+                <button
+                  onClick={() => {
+                    setIsWithdrawOpen(true);
+                    setIsMenuOpen(false);
+                  }}
+                  className="block w-full text-left px-3 py-3 rounded-md text-sm font-medium text-gray-400 hover:text-red-500 hover:bg-gray-50"
+                >
+                  Delete Account
                 </button>
               </div>
             </div>
@@ -175,6 +212,24 @@ function App() {
       </main>
 
       <Footer />
+
+      <AlertModal
+        isOpen={isWithdrawOpen}
+        title="회원 탈퇴"
+        message="탈퇴하면 계정과 작성한 모든 답변이 영구적으로 삭제되며 복구할 수 없습니다. 정말 탈퇴하시겠습니까?"
+        confirmText="탈퇴하기"
+        isConfirming={isWithdrawing}
+        onConfirm={handleWithdraw}
+        onClose={() => {
+          if (!isWithdrawing) setIsWithdrawOpen(false);
+        }}
+      />
+      <AlertModal
+        isOpen={!!withdrawError}
+        title="회원 탈퇴"
+        message={withdrawError}
+        onClose={() => setWithdrawError('')}
+      />
     </div>
   );
 }

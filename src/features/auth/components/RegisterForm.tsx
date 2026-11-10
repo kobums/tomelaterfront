@@ -146,6 +146,16 @@ const SignInLink = styled(Link)`
   }
 `;
 
+const LegalLink = styled.a`
+  color: #4f46e5;
+  text-decoration: underline;
+  text-decoration-color: #c7d2fe;
+  text-underline-offset: 4px;
+  &:hover {
+    color: #4338ca;
+  }
+`;
+
 export const RegisterForm: React.FC = () => {
   const {
     email,
@@ -313,6 +323,13 @@ export const RegisterForm: React.FC = () => {
               Please verify your email to create an account.
             </p>
           )}
+          <p style={{ marginTop: '0.75rem', textAlign: 'center', fontSize: '0.75rem', color: '#6b7280' }}>
+            가입하면{' '}
+            <LegalLink href="https://gowoobro.com/ko/app/1/terms" target="_blank" rel="noopener noreferrer">이용약관</LegalLink>
+            {' '}및{' '}
+            <LegalLink href="https://gowoobro.com/ko/app/1/privacy" target="_blank" rel="noopener noreferrer">개인정보 처리방침</LegalLink>
+            에 동의하는 것으로 간주됩니다.
+          </p>
         </div>
       </Form>
 
