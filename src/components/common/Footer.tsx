@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import { Link } from 'react-router-dom';
 
 const FooterContainer = styled.footer`
   background-color: #f9fafb;
@@ -35,7 +34,7 @@ const Links = styled.div`
   gap: 1.5rem;
 `;
 
-const FooterLink = styled(Link)`
+const FooterLink = styled.a`
   color: #6b7280;
   font-size: 0.875rem;
   text-decoration: none;
@@ -53,7 +52,8 @@ export const Footer: React.FC = () => {
           © {new Date().getFullYear()} To Me, Later. All rights reserved.
         </Copyright>
         <Links>
-          <FooterLink to="/privacy">개인정보 처리방침</FooterLink>
+          <FooterLink href="https://gowoobro.com/ko/app/1/terms" target="_blank" rel="noopener noreferrer">이용약관</FooterLink>
+          <FooterLink href="https://gowoobro.com/ko/app/1/privacy" target="_blank" rel="noopener noreferrer">개인정보 처리방침</FooterLink>
         </Links>
       </FooterContent>
     </FooterContainer>
