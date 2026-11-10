@@ -8,6 +8,11 @@ interface AlertModalProps {
   onClose: () => void;
   title?: string;
   message: string;
+  // onConfirm 을 주면 취소/확인 두 버튼의 확인 창으로 동작한다.
+  onConfirm?: () => void;
+  confirmText?: string;
+  cancelText?: string;
+  isConfirming?: boolean;
 }
 
 const Overlay = styled.div`
@@ -61,6 +66,16 @@ const Message = styled.p`
 
 const ButtonWrapper = styled.div`
   margin-top: 1.5rem;
+  display: flex;
+  gap: 0.75rem;
+`;
+
+const CancelButton = styled(Button)`
+  width: 100%;
+  font-weight: 700;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-radius: 0.75rem;
 `;
 
 const ConfirmButton = styled(Button)`
@@ -88,6 +103,10 @@ export const AlertModal: React.FC<AlertModalProps> = ({
   onClose,
   title,
   message,
+  onConfirm,
+  confirmText = '확인',
+  cancelText = '취소',
+  isConfirming = false,
 }) => {
   if (!isOpen) return null;
 
@@ -103,8 +122,13 @@ export const AlertModal: React.FC<AlertModalProps> = ({
         </div>
 
         <ButtonWrapper>
-          <ConfirmButton onClick={onClose}>
-            확인
+          {onConfirm && (
+            <CancelButton variant="secondary" onClick={onClose} disabled={isConfirming}>
+              {cancelText}
+            </CancelButton>
+          )}
+          <ConfirmButton onClick={onConfirm ?? onClose} isLoading={isConfirming}>
+            {confirmText}
           </ConfirmButton>
         </ButtonWrapper>
       </ModalContent>

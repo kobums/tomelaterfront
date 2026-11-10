@@ -2,6 +2,7 @@ import axios from 'axios';
 import type { LoginRequest, LoginResponse } from '../types/auth';
 import type { User } from '../types/user';
 import { useAuthStore } from '../store/useAuthStore';
+import { del } from './api';
 
 // We'll use the store or local storage for token management typically,
 // but here we just provide the API calls.
@@ -81,6 +82,19 @@ export const authService = {
 
   },
 
+
+  // 회원 탈퇴: DELETE /api/user/:id (본인만 가능). 서버가 계정과 모든 답변을 삭제한다.
+  async withdraw(id: number): Promise<void> {
+    try {
+      const response = await del<{ success: boolean }>(`/user/${id}`);
+      if (!response.data?.success) {
+        throw new Error('withdraw failed');
+      }
+    } catch (error) {
+      console.error('Withdraw error:', error);
+      throw new Error('회원 탈퇴에 실패했습니다. 잠시 후 다시 시도해주세요.');
+    }
+  },
 
   // Send email verification code
   async sendVerificationCode(email: string): Promise<void> {
